@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#6255e7">
+  <title>Проверка текста</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root { --bg:#f6f7fb; --card:#fff; --text:#1e2030; --muted:#73778a; --line:#e5e6ef; --violet:#6255e7; --violet-soft:#eeedff; --green:#0b9e70; --green-soft:#e7f8f1; --red:#d73950; --red-soft:#ffedf0; --yellow:#ad7000; --yellow-soft:#fff5dc; --radius:18px; }
+    @media(prefers-color-scheme:dark){:root{--bg:#15161d;--card:#20212a;--text:#f4f4fa;--muted:#b0b2c1;--line:#373844;--violet-soft:#302d55;--green-soft:#17392f;--red-soft:#40252e;--yellow-soft:#3a301c}}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;padding:env(safe-area-inset-top) 16px calc(28px + env(safe-area-inset-bottom))} button,textarea{font:inherit} button{border:0;cursor:pointer;touch-action:manipulation} .app{max-width:720px;margin:auto}.brand{display:flex;align-items:center;gap:11px;margin:14px 2px 26px}.logo{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,#786df5,#4c42cf);color:#fff;font-size:21px;box-shadow:0 8px 24px #6255e744}.brand h1{font-size:18px;letter-spacing:-.02em;margin:0}.brand p{font-size:12px;color:var(--muted);margin:1px 0 0}.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:0 2px 12px #11111a08}.intro{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:15px}.intro h2{font-size:20px;letter-spacing:-.03em;line-height:1.25;margin:0}.intro span{font-size:11px;color:var(--green);background:var(--green-soft);padding:5px 8px;border-radius:8px;white-space:nowrap}.modes{display:flex;gap:7px;overflow:auto;padding-bottom:5px;margin:16px 0 14px}.mode{flex:0 0 auto;padding:8px 11px;border:1px solid var(--line);border-radius:10px;color:var(--muted);background:var(--card);font-size:12px;font-weight:600}.mode.active{background:var(--violet-soft);border-color:var(--violet);color:var(--violet)}textarea{display:block;width:100%;height:245px;resize:vertical;border:1px solid var(--line);border-radius:13px;padding:14px;background:var(--bg);color:var(--text);outline:0;line-height:1.7}textarea:focus{border-color:var(--violet);box-shadow:0 0 0 3px #6255e720}.tools{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px;color:var(--muted);font-size:12px}.link{padding:4px;background:none;color:var(--violet);font-size:12px;font-weight:650}.main{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:51px;margin-top:18px;border-radius:13px;background:linear-gradient(135deg,#7267ed,#5043d4);color:#fff;font-weight:700;box-shadow:0 8px 18px #6255e733}.main:disabled{opacity:.55}.status{display:none;margin-top:16px;padding:12px 14px;border-radius:12px;font-size:13px}.status.show{display:block}.status.ok{background:var(--green-soft);color:var(--green)}.status.warn{background:var(--yellow-soft);color:var(--yellow)}.result{display:none;margin-top:18px}.result.show{display:block}.result h2{font-size:16px;margin:0 0 12px}.summary{display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:13px;border-radius:12px;background:var(--violet-soft);color:var(--violet);font-size:13px}.summary strong{font-size:18px}.issue{padding:13px 0;border-bottom:1px solid var(--line)}.issue:last-child{border-bottom:0}.issue-top{display:flex;justify-content:space-between;gap:8px;font-size:13px}.issue b{font-weight:700}.tag{font-size:10px;padding:3px 6px;border-radius:5px;background:var(--red-soft);color:var(--red);white-space:nowrap}.issue p{font-size:12px;color:var(--muted);margin:5px 0 0}.fix{display:flex;gap:7px;flex-wrap:wrap;margin-top:7px;font-size:13px}.bad{text-decoration:line-through;color:var(--red)}.good{color:var(--green);font-weight:650}.actions{display:flex;gap:8px;margin-top:15px}.secondary{flex:1;min-height:42px;border:1px solid var(--line);border-radius:11px;background:var(--card);color:var(--text);font-size:13px;font-weight:650}.apply{background:var(--violet);color:#fff;border-color:var(--violet)}.note{font-size:11px;color:var(--muted);text-align:center;margin:20px 8px 0}.hidden{display:none!important}@media(max-width:380px){body{padding-left:12px;padding-right:12px}.card{padding:15px}.intro h2{font-size:18px}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="brand"><div class="logo">✦</div><div><h1>Проверка текста</h1><p>Быстро и прямо в Telegram</p></div></header>
+    <section class="card">
+      <div class="intro"><div><h2>Напиши. Проверим.<br>Отправляй уверенно.</h2></div><span>● Без оплаты</span></div>
+      <div class="modes" aria-label="Режим проверки">
+        <button class="mode active" data-mode="check">✓ Проверить</button>
+        <button class="mode" data-mode="clean">⌁ Убрать лишнее</button>
+        <button class="mode" data-mode="formal">▣ Официальный тон</button>
+      </div>
+      <textarea id="text" maxlength="12000" placeholder="Вставь сюда сообщение, пост или письмо…" aria-label="Текст для проверки"></textarea>
+      <div class="tools"><span id="count">0 / 12 000 символов</span><button class="link" id="sample">Пример текста</button></div>
+      <button class="main" id="check">✦ <span>Проверить текст</span></button>
+      <div id="status" class="status"></div>
+    </section>
+    <section class="card result" id="result"><h2>Что можно поправить</h2><div id="summary" class="summary"></div><div id="issues"></div><div class="actions"><button class="secondary apply" id="apply">Применить всё</button><button class="secondary" id="copy">Скопировать</button></div></section>
+    <p class="note">Первый режим работает прямо на устройстве. Проверяй важные тексты вручную перед отправкой.</p>
+  </main>
+  <script>
+    const tg=window.Telegram&&window.Telegram.WebApp; if(tg){tg.ready();tg.expand();try{tg.setHeaderColor('#6255e7')}catch(e){}}
+    const el=id=>document.getElementById(id), text=el('text'), count=el('count'), result=el('result'), issuesBox=el('issues'), summary=el('summary'), status=el('status');
+    let mode='check', found=[], corrected='';
+    const rules=[
+      [/\bчто бы\b/giu,'чтобы','Союз «чтобы» обычно пишется слитно.'],[/\bто же\b/giu,'тоже','Если можно заменить на «также», пишется слитно.'],[/\bтак же\b/giu,'также','Если можно заменить на «тоже», пишется слитно.'],[/\bвообщем\b/giu,'в общем','Нормативный вариант — «в общем».'],[/\bвсё таки\b/giu,'всё-таки','Частица «-таки» пишется через дефис.'],[/\bиз за\b/giu,'из-за','Предлог пишется через дефис.'],[/\bне смотря на\b/giu,'несмотря на','В значении «вопреки» пишется слитно.'],[/\bприйтись\b/giu,'придётся','Проверь форму: часто нужен вариант «придётся».'],[/\bпожалуйсто\b/giu,'пожалуйста','В слове «пожалуйста» нет буквы «о».'],[/\bвообщем-то\b/giu,'в общем-то','Нормативный вариант — «в общем-то».'],[/ {2,}/g,' ','Лишние пробелы лучше убрать.'],[/([!?.,])\1{1,}/g,'$1','Повторяющийся знак обычно лишний.'],[/\s+([,.!?;:])/g,'$1','Перед знаком препинания пробел не ставится.']
+    ];
+    function vibrate(kind='light'){if(tg&&tg.HapticFeedback){try{kind==='ok'?tg.HapticFeedback.notificationOccurred('success'):tg.HapticFeedback.impactOccurred('light')}catch(e){}}}
+    function update(){count.textContent=text.value.length.toLocaleString('ru-RU')+' / 12 000 символов';}
+    function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+    function showStatus(message,type){status.className='status show '+type;status.textContent=message;}
+    function check(){const value=text.value;found=[];if(!value.trim()){showStatus('Сначала вставь или напиши текст.', 'warn');return;} corrected=value;rules.forEach(([pattern,replacement,explanation])=>{let match;pattern.lastIndex=0;while((match=pattern.exec(value))&&found.length<40){found.push({original:match[0],replacement,explanation});if(!pattern.global)break;}corrected=corrected.replace(pattern,replacement);});
+      if(mode==='clean'){corrected=corrected.replace(/\s{2,}/g,' ').replace(/\s+([,.!?;:])/g,'$1').replace(/\n{3,}/g,'\n\n');}
+      if(mode==='formal'){corrected=corrected.replace(/\bпривет\b/giu,'Здравствуйте').replace(/\bспс\b/giu,'Спасибо').replace(/\bпж\b/giu,'пожалуйста');}
+      result.classList.add('show'); issuesBox.innerHTML='';summary.innerHTML=found.length?'<strong>'+found.length+'</strong><span>замечаний найдено. Нажми «Применить всё», чтобы заменить текст.</span>':'<strong>✓</strong><span>Частых ошибок не найдено. Прочитай текст ещё раз перед отправкой.</span>';
+      if(found.length){found.forEach((item,i)=>{const row=document.createElement('article');row.className='issue';row.innerHTML='<div class="issue-top"><b>Замечание '+(i+1)+'</b><span class="tag">проверка</span></div><div class="fix"><span class="bad">'+escapeHtml(item.original)+'</span><span>→</span><span class="good">'+escapeHtml(item.replacement)+'</span></div><p>'+escapeHtml(item.explanation)+'</p>';issuesBox.append(row);});}else{issuesBox.innerHTML='<p style="font-size:12px;color:var(--muted);margin:0">Это быстрая локальная проверка. Она не понимает весь смысл текста и может не заметить часть ошибок.</p>';}showStatus(found.length?'Готово. Проверь предложенные исправления.':'Готово.','ok');vibrate('ok');result.scrollIntoView({behavior:'smooth',block:'start'});
+    }
+    text.addEventListener('input',update);el('sample').onclick=()=>{text.value='Привет! Я хотел спросить что бы мне сделать, вообщем то. Пожалуйсто ответь!!';update();vibrate();};el('check').onclick=check;el('apply').onclick=()=>{if(!text.value.trim())return;text.value=corrected;update();showStatus('Изменения применены. Теперь текст можно скопировать.', 'ok');vibrate('ok');};el('copy').onclick=async()=>{try{await navigator.clipboard.writeText(text.value);showStatus('Текст скопирован. Можно вставить его в чат.', 'ok');vibrate('ok');}catch(e){text.select();document.execCommand('copy');showStatus('Текст выделен. Нажми «Копировать» в меню телефона.', 'ok');}};
+    document.querySelectorAll('.mode').forEach(button=>button.onclick=()=>{document.querySelectorAll('.mode').forEach(x=>x.classList.remove('active'));button.classList.add('active');mode=button.dataset.mode;el('check').querySelector('span').textContent=mode==='check'?'Проверить текст':mode==='clean'?'Убрать лишнее':'Сделать официальнее';vibrate();});update();
+  </script>
+</body>
+</html>
