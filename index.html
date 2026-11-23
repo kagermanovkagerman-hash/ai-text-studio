@@ -22,33 +22,58 @@
         <button class="mode" data-mode="clean">⌁ Убрать лишнее</button>
         <button class="mode" data-mode="formal">▣ Официальный тон</button>
       </div>
-      <textarea id="text" maxlength="12000" placeholder="Вставь сюда сообщение, пост или письмо…" aria-label="Текст для проверки"></textarea>
-      <div class="tools"><span id="count">0 / 12 000 символов</span><button class="link" id="sample">Пример текста</button></div>
-      <button class="main" id="check">✦ <span>Проверить текст</span></button>
+      <textarea id="text" maxlength="200000" placeholder="Вставь сюда сообщение, пост или письмо…" aria-label="Текст для проверки"></textarea>
+      <div class="tools"><span id="count">0 / 200 000 символов</span><button class="link" id="sample">Пример текста</button></div>
+      <button class="main" id="check">✦ <span>Проверить текст с ИИ</span></button>
+      <div class="tools"><button class="link" id="configure">⚙ Подключить Gemini</button><span id="progress" role="status"></span></div>
       <div id="status" class="status"></div>
     </section>
     <section class="card result" id="result"><h2>Что можно поправить</h2><div id="summary" class="summary"></div><div id="issues"></div><div class="actions"><button class="secondary apply" id="apply">Применить всё</button><button class="secondary" id="copy">Скопировать</button></div></section>
-    <p class="note">Первый режим работает прямо на устройстве. Проверяй важные тексты вручную перед отправкой.</p>
+    <p class="note">Проверка выполняется через Gemini. Не отправляй пароли и секретные данные.</p>
   </main>
   <script>
     const tg=window.Telegram&&window.Telegram.WebApp; if(tg){tg.ready();tg.expand();try{tg.setHeaderColor('#6255e7')}catch(e){}}
     const el=id=>document.getElementById(id), text=el('text'), count=el('count'), result=el('result'), issuesBox=el('issues'), summary=el('summary'), status=el('status');
-    let mode='check', found=[], corrected='';
+    let mode='check', found=[], corrected='', busy=false;
     const rules=[
       [/\bчто бы\b/giu,'чтобы','Союз «чтобы» обычно пишется слитно.'],[/\bто же\b/giu,'тоже','Если можно заменить на «также», пишется слитно.'],[/\bтак же\b/giu,'также','Если можно заменить на «тоже», пишется слитно.'],[/\bвообщем\b/giu,'в общем','Нормативный вариант — «в общем».'],[/\bвсё таки\b/giu,'всё-таки','Частица «-таки» пишется через дефис.'],[/\bиз за\b/giu,'из-за','Предлог пишется через дефис.'],[/\bне смотря на\b/giu,'несмотря на','В значении «вопреки» пишется слитно.'],[/\bприйтись\b/giu,'придётся','Проверь форму: часто нужен вариант «придётся».'],[/\bпожалуйсто\b/giu,'пожалуйста','В слове «пожалуйста» нет буквы «о».'],[/\bвообщем-то\b/giu,'в общем-то','Нормативный вариант — «в общем-то».'],[/ {2,}/g,' ','Лишние пробелы лучше убрать.'],[/([!?.,])\1{1,}/g,'$1','Повторяющийся знак обычно лишний.'],[/\s+([,.!?;:])/g,'$1','Перед знаком препинания пробел не ставится.']
     ];
     function vibrate(kind='light'){if(tg&&tg.HapticFeedback){try{kind==='ok'?tg.HapticFeedback.notificationOccurred('success'):tg.HapticFeedback.impactOccurred('light')}catch(e){}}}
-    function update(){count.textContent=text.value.length.toLocaleString('ru-RU')+' / 12 000 символов';}
+    function update(){count.textContent=text.value.length.toLocaleString('ru-RU')+' / 200 000 символов';}
     function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
     function showStatus(message,type){status.className='status show '+type;status.textContent=message;}
-    function check(){const value=text.value;found=[];if(!value.trim()){showStatus('Сначала вставь или напиши текст.', 'warn');return;} corrected=value;rules.forEach(([pattern,replacement,explanation])=>{let match;pattern.lastIndex=0;while((match=pattern.exec(value))&&found.length<40){found.push({original:match[0],replacement,explanation});if(!pattern.global)break;}corrected=corrected.replace(pattern,replacement);});
-      if(mode==='clean'){corrected=corrected.replace(/\s{2,}/g,' ').replace(/\s+([,.!?;:])/g,'$1').replace(/\n{3,}/g,'\n\n');}
-      if(mode==='formal'){corrected=corrected.replace(/\bпривет\b/giu,'Здравствуйте').replace(/\bспс\b/giu,'Спасибо').replace(/\bпж\b/giu,'пожалуйста');}
-      result.classList.add('show'); issuesBox.innerHTML='';summary.innerHTML=found.length?'<strong>'+found.length+'</strong><span>замечаний найдено. Нажми «Применить всё», чтобы заменить текст.</span>':'<strong>✓</strong><span>Частых ошибок не найдено. Прочитай текст ещё раз перед отправкой.</span>';
-      if(found.length){found.forEach((item,i)=>{const row=document.createElement('article');row.className='issue';row.innerHTML='<div class="issue-top"><b>Замечание '+(i+1)+'</b><span class="tag">проверка</span></div><div class="fix"><span class="bad">'+escapeHtml(item.original)+'</span><span>→</span><span class="good">'+escapeHtml(item.replacement)+'</span></div><p>'+escapeHtml(item.explanation)+'</p>';issuesBox.append(row);});}else{issuesBox.innerHTML='<p style="font-size:12px;color:var(--muted);margin:0">Это быстрая локальная проверка. Она не понимает весь смысл текста и может не заметить часть ошибок.</p>';}showStatus(found.length?'Готово. Проверь предложенные исправления.':'Готово.','ok');vibrate('ok');result.scrollIntoView({behavior:'smooth',block:'start'});
+    function chunks(value){const list=[];let pos=0;while(pos<value.length){let end=Math.min(pos+3500,value.length);if(end<value.length){const cut=value.lastIndexOf(' ',end);if(cut>pos+2000)end=cut+1;}list.push(value.slice(pos,end));pos=end;}return list;}
+    async function check(){
+      if(busy)return;
+      const value=text.value, endpoint=localStorage.getItem('ai-worker-url');
+      if(!value.trim()){showStatus('Сначала вставь или напиши текст.','warn');return;}
+      if(!endpoint){showStatus('Сначала нажми «Подключить Gemini» и вставь адрес Worker.','warn');return;}
+      busy=true;el('check').disabled=true;result.classList.remove('show');found=[];corrected='';
+      const parts=chunks(value);let completed=0;
+      try{
+        const output=new Array(parts.length);
+        let next=0;
+        async function runner(){while(next<parts.length){const i=next++;el('progress').textContent='Обработано '+completed+' из '+parts.length;
+          const response=await fetch(endpoint+'/api/process',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':tg?.initData||''},body:JSON.stringify({chunk:parts[i],mode})});
+          const data=await response.json().catch(()=>({}));
+          if(!response.ok)throw new Error(data.error||'Ошибка соединения с ИИ ('+response.status+').');
+          if(typeof data.corrected!=='string'||!Array.isArray(data.issues))throw new Error('ИИ вернул неполный ответ. Повтори попытку.');
+          output[i]=data;completed++;el('progress').textContent='Обработано '+completed+' из '+parts.length;
+        }}
+        await Promise.all(Array.from({length:Math.min(2,parts.length)},()=>runner()));
+        if(text.value!==value)throw new Error('Текст изменился во время проверки. Нажми кнопку ещё раз.');
+        corrected=output.map(x=>x.corrected).join('');
+        found=output.flatMap(x=>x.issues).slice(0,200);
+        issuesBox.innerHTML='';
+        found.forEach((item,i)=>{const row=document.createElement('article');row.className='issue';row.innerHTML='<div class="issue-top"><b>'+escapeHtml(item.category||'Замечание')+' '+(i+1)+'</b><span class="tag">Gemini</span></div><div class="fix"><span class="bad">'+escapeHtml(item.original||'')+'</span><span>→</span><span class="good">'+escapeHtml(item.suggestion||'')+'</span></div><p>'+escapeHtml(item.explanation||'')+'</p>';issuesBox.append(row);});
+        if(!found.length)issuesBox.innerHTML='<p>Замечаний не найдено. При желании сравни исходный и исправленный текст.</p>';
+        summary.textContent=found.length+' замечаний. Нажми «Применить всё», чтобы заменить текст целиком.';
+        result.classList.add('show');showStatus('Готово. Исправленный текст готов ниже.','ok');result.scrollIntoView({behavior:'smooth'});vibrate('ok');
+      }catch(error){console.error('Gemini request failed',error);showStatus(error.message||'Не удалось проверить текст. Попробуй ещё раз.','warn');vibrate();}
+      finally{busy=false;el('check').disabled=false;el('progress').textContent='';}
     }
-    text.addEventListener('input',update);el('sample').onclick=()=>{text.value='Привет! Я хотел спросить что бы мне сделать, вообщем то. Пожалуйсто ответь!!';update();vibrate();};el('check').onclick=check;el('apply').onclick=()=>{if(!text.value.trim())return;text.value=corrected;update();showStatus('Изменения применены. Теперь текст можно скопировать.', 'ok');vibrate('ok');};el('copy').onclick=async()=>{try{await navigator.clipboard.writeText(text.value);showStatus('Текст скопирован. Можно вставить его в чат.', 'ok');vibrate('ok');}catch(e){text.select();document.execCommand('copy');showStatus('Текст выделен. Нажми «Копировать» в меню телефона.', 'ok');}};
-    document.querySelectorAll('.mode').forEach(button=>button.onclick=()=>{document.querySelectorAll('.mode').forEach(x=>x.classList.remove('active'));button.classList.add('active');mode=button.dataset.mode;el('check').querySelector('span').textContent=mode==='check'?'Проверить текст':mode==='clean'?'Убрать лишнее':'Сделать официальнее';vibrate();});update();
+    text.addEventListener('input',update);el('configure').onclick=()=>{const current=localStorage.getItem('ai-worker-url')||'';const entered=prompt('Вставь адрес Cloudflare Worker (без /api/process):',current);if(entered===null)return;try{const url=new URL(entered.trim());if(url.protocol!=='https:')throw Error();localStorage.setItem('ai-worker-url',url.origin);showStatus('Адрес Gemini сохранён. Теперь можно проверять текст.','ok');}catch{showStatus('Нужен полный адрес https://...workers.dev','warn');}};el('sample').onclick=()=>{text.value='Привет! Я хотел спросить что бы мне сделать, вообщем то. Пожалуйсто провери текст!!';update();vibrate();};el('check').onclick=check;el('apply').onclick=()=>{if(!corrected)return;text.value=corrected;update();showStatus('Изменения применены. Теперь текст можно скопировать.', 'ok');vibrate('ok');};el('copy').onclick=async()=>{try{await navigator.clipboard.writeText(text.value);showStatus('Текст скопирован. Можно вставить его в чат.', 'ok');vibrate('ok');}catch(e){text.select();document.execCommand('copy');showStatus('Текст выделен. Нажми «Копировать» в меню телефона.', 'ok');}};
+    document.querySelectorAll('.mode').forEach(button=>button.onclick=()=>{document.querySelectorAll('.mode').forEach(x=>x.classList.remove('active'));button.classList.add('active');mode=button.dataset.mode;el('check').querySelector('span').textContent=mode==='check'?'Проверить текст с ИИ':mode==='clean'?'Убрать лишнее':'Сделать официальнее';vibrate();});update();
   </script>
 </body>
 </html>
